@@ -2,11 +2,6 @@ terraform {
   experiments = [module_variable_optional_attrs]
 }
 
-variable "project_id" {
-  description = "GCP project id"
-  type        = string
-}
-
 variable "app_meta" {
   description = "Application metadata"
   type        = object({
@@ -34,12 +29,18 @@ variable "vpc_connector_id" {
 
 variable "service_account_email" {
   description = "Service account email"
-  type = string
+  type        = string
 }
 
 variable "func_params" {
   description = "Cloud function params"
-  type = any
+  type        = any
+}
+
+variable "public_access" {
+  description = "Allow public access or not"
+  default     = false
+  type        = bool
 }
 
 variable "schedulers" {

@@ -1,31 +1,26 @@
 resource "google_cloudfunctions_function" "cfn" {
-  name                = var.func_params.name
-  entry_point         = var.func_params.entrypoint
-  available_memory_mb = var.func_params.memory
-  timeout             = var.func_params.timeout
-  runtime             = var.func_params.runtime
-  trigger_http        = var.func_params.http
-  labels              = var.labels
+  name                  = var.func_params.name
+  entry_point           = var.func_params.entrypoint
+  available_memory_mb   = var.func_params.memory
+  timeout               = var.func_params.timeout
+  runtime               = var.func_params.runtime
+  trigger_http          = var.func_params.http
+  labels                = var.labels
   source_archive_bucket = var.func_params.bucket
   source_archive_object = var.func_params.object
   service_account_email = var.service_account_email
   vpc_connector         = var.vpc_connector_id
-  environment_variables = merge(
-    var.env_vars,
-    {
-      CLOUD_PLATFORM = "gcp"
-      GCP_PROJECT_ID = var.project_id
-    }
-  )
+  environment_variables = var.env_vars
 }
 
-# resource "google_cloudfunctions_function_iam_binding" "for_everyone" {
-#   cloud_function = google_cloudfunctions_function.cfn.name
-#   role           = "roles/cloudfunctions.invoker"
-#   members = [
-#     "allUsers"
-#   ]
-# }
+resource "google_cloudfunctions_function_iam_binding" "for_everyone" {
+  count          = var.public_access ? 1 : 0
+  cloud_function = google_cloudfunctions_function.cfn.name
+  role           = "roles/cloudfunctions.invoker"
+  members = [
+    "allUsers"
+  ]
+}
 
 resource "google_cloud_scheduler_job" "job" {
   for_each         = var.func_params.http ? { for s in var.schedulers: s.name => s } : {}
