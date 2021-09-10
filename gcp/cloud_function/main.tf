@@ -1,0 +1,53 @@
+resource "google_cloudfunctions_function" "cfn" {
+  name                = var.func_params.name
+  entry_point         = var.func_params.entrypoint
+  available_memory_mb = var.func_params.memory
+  timeout             = var.func_params.timeout
+  runtime             = var.func_params.runtime
+  trigger_http        = var.func_params.http
+  labels              = var.labels
+  source_archive_bucket = var.func_params.bucket
+  source_archive_object = var.func_params.object
+  service_account_email = var.service_account_email
+  vpc_connector         = var.vpc_connector_id
+  environment_variables = merge(
+    var.env_vars,
+    {
+      CLOUD_PLATFORM = "gcp"
+      GCP_PROJECT_ID = var.project_id
+    }
+  )
+}
+
+# resource "google_cloudfunctions_function_iam_binding" "for_everyone" {
+#   cloud_function = google_cloudfunctions_function.cfn.name
+#   role           = "roles/cloudfunctions.invoker"
+#   members = [
+#     "allUsers"
+#   ]
+# }
+
+resource "google_cloud_scheduler_job" "job" {
+  for_each         = var.func_params.http ? { for s in var.schedulers: s.name => s } : {}
+
+  name             = "${var.func_params.name}-${each.value.name}"
+  description      = "${var.func_params.name}-${each.value.name}"
+  schedule         = each.value.schedule
+  time_zone        = coalesce(each.value.time_zone, "Etc/UTC")
+  attempt_deadline = each.value.timeout != null ? "${each.value.timeout}s" : "${var.func_params.timeout}s"
+
+  retry_config {
+    retry_count = coalesce(each.value.retry_count, 1)
+  }
+
+  http_target {
+    http_method = each.value.http_method
+    uri         = each.value.uri_path != null ? "${google_cloudfunctions_function.cfn.https_trigger_url}/${each.value.uri_path}" : google_cloudfunctions_function.cfn.https_trigger_url
+    body        = each.value.body
+
+    oidc_token {
+      service_account_email = var.service_account_email
+    }
+
+  }
+}
