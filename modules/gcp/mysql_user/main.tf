@@ -19,7 +19,7 @@ resource "google_sql_user" "mysql_user" {
 
 # Secrets
 resource "google_secret_manager_secret" "mysql" {
-  secret_id = "${var.app_meta.product}_${var.app_meta.env}_${var.app_meta.app}_mysql-secret"
+  secret_id = "${var.app_meta.app}_mysql-user"
   replication {
     automatic = true
   }
