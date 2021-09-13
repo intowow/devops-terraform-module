@@ -1,5 +1,5 @@
 resource "google_cloudfunctions_function" "cfn" {
-  name                  = (var.func_params.name == var.app_meta.name) ? var.func_params.name : "${var.app_meta.app}_${var.func_params.name}"
+  name                  = (var.func_params.name == var.app_meta.app) ? var.func_params.name : "${var.app_meta.app}_${var.func_params.name}"
   entry_point           = var.func_params.entrypoint
   available_memory_mb   = var.func_params.memory
   timeout               = var.func_params.timeout
