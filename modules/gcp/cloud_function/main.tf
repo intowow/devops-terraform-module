@@ -1,5 +1,5 @@
 resource "google_cloudfunctions_function" "cfn" {
-  name                  = var.func_params.name
+  name                  = (var.func_params.name == var.app_meta.name) ? var.func_params.name : "${var.app_meta.app}_${var.func_params.name}"
   entry_point           = var.func_params.entrypoint
   available_memory_mb   = var.func_params.memory
   timeout               = var.func_params.timeout
@@ -25,8 +25,8 @@ resource "google_cloudfunctions_function_iam_binding" "for_everyone" {
 resource "google_cloud_scheduler_job" "job" {
   for_each         = var.func_params.http ? { for s in var.schedulers: s.name => s } : {}
 
-  name             = "${var.func_params.name}-${each.value.name}"
-  description      = "${var.func_params.name}-${each.value.name}"
+  name             = "${var.app_meta.app}_${each.value.name}"
+  description      = "${var.app_meta.app}_${each.value.name}"
   schedule         = each.value.schedule
   time_zone        = coalesce(each.value.time_zone, "Etc/UTC")
   attempt_deadline = each.value.timeout != null ? "${each.value.timeout}s" : "${var.func_params.timeout}s"
