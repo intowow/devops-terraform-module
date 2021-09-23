@@ -35,6 +35,8 @@ variable "service_account_email" {
 variable "func_params" {
   description = "Cloud function params"
   type        = object({
+    bucket        = string
+    object        = string
     name          = string
     entrypoint    = string
     runtime       = string
