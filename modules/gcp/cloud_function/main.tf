@@ -42,6 +42,7 @@ resource "google_cloud_scheduler_job" "job" {
 
     oidc_token {
       service_account_email = var.service_account_email
+      audience              = google_cloudfunctions_function.cfn.https_trigger_url
     }
 
   }
