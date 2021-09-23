@@ -34,26 +34,23 @@ variable "service_account_email" {
 
 variable "func_params" {
   description = "Cloud function params"
-  type        = any
-}
-
-variable "public_access" {
-  description = "Allow public access or not"
-  default     = false
-  type        = bool
-}
-
-variable "schedulers" {
-  description = "Cloud schedulers"
-  default     = []
-  type        = list(object({
-    name        = string
-    schedule    = string
-    time_zone   = optional(string)
-    timeout     = optional(number)
-    uri_path    = optional(string)
-    http_method = string
-    body        = optional(string)
-    retry_count = optional(number)
-  }))
+  type        = object({
+    name          = string
+    entrypoint    = string
+    runtime       = string
+    memory        = number
+    timeout       = number
+    http_trigger  = bool
+    public_access = optional(bool)
+    schedulers    = optional(list(object({
+      name        = string
+      schedule    = string
+      time_zone   = optional(string)
+      timeout     = optional(number)
+      uri_path    = optional(string)
+      http_method = string
+      body        = optional(string)
+      retry_count = optional(number)
+    })))
+  })
 }

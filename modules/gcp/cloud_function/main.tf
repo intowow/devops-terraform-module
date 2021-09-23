@@ -4,7 +4,7 @@ resource "google_cloudfunctions_function" "cfn" {
   available_memory_mb   = var.func_params.memory
   timeout               = var.func_params.timeout
   runtime               = var.func_params.runtime
-  trigger_http          = var.func_params.http
+  trigger_http          = var.func_params.http_trigger
   labels                = var.labels
   source_archive_bucket = var.func_params.bucket
   source_archive_object = var.func_params.object
@@ -14,7 +14,7 @@ resource "google_cloudfunctions_function" "cfn" {
 }
 
 resource "google_cloudfunctions_function_iam_binding" "for_everyone" {
-  count          = var.public_access ? 1 : 0
+  count          = var.func_params.public_access != null ? (var.func_params.public_access ? 1 : 0) : 0
   cloud_function = google_cloudfunctions_function.cfn.name
   role           = "roles/cloudfunctions.invoker"
   members = [
@@ -23,7 +23,7 @@ resource "google_cloudfunctions_function_iam_binding" "for_everyone" {
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  for_each         = var.func_params.http ? { for s in var.schedulers: s.name => s } : {}
+  for_each         = var.func_params.http_trigger ? { for s in var.func_params.schedulers: s.name => s } : {}
 
   name             = "${var.app_meta.app}_${each.value.name}"
   description      = "${var.app_meta.app}_${each.value.name}"
