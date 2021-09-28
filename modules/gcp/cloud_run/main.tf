@@ -59,5 +59,5 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
   project  = google_cloud_run_service.cr.project
   service  = google_cloud_run_service.cr.name
 
-  policy_data = data.google_iam_policy.noauth.*.policy_data[google_iam_policy.noauth.index]
+  policy_data = data.google_iam_policy.noauth.*.policy_data[count.index]
 }
