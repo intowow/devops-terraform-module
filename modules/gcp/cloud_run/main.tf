@@ -5,13 +5,13 @@ resource "google_cloud_run_service" "cr" {
   template {
     spec {
       service_account_name = var.service_account_email
-      containerConcurrency = var.run_params.container_concurrency
-      timeoutSeconds       = var.run_params.timeout
+      container_concurrency = var.run_params.container_concurrency
+      timeout_seconds       = var.run_params.timeout
 
       containers {
         image = var.run_params.image_uri
 
-        resources = {
+        resources {
           limits = {
             cpu    = var.run_params.cpu
             memory = var.run_params.memory
