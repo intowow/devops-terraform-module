@@ -1,5 +1,5 @@
 resource "google_cloud_run_service" "cr" {
-  name     = (var.run_params.name == var.app_meta.app) ? var.run_params.name : "${var.app_meta.app}_${var.run_params.name}"
+  name     = (var.run_params.name == var.app_meta.app) ? var.run_params.name : "${var.app_meta.app}--${var.run_params.name}"
   location = "asia-northeast1"
 
   template {
